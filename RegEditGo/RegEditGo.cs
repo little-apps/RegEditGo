@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using Microsoft.Win32;
 
@@ -13,7 +10,7 @@ namespace RegEditGo
 {
     public class RegEditGo : IDisposable
     {
-        public RegEditGo()
+        private RegEditGo()
         {
             uint processId;
 
@@ -116,7 +113,7 @@ namespace RegEditGo
             }
         }
 
-        public void OpenKey(string path, bool select)
+        private void OpenKey(string path, bool select)
         {
             if (string.IsNullOrEmpty(path)) return;
 
@@ -131,9 +128,8 @@ namespace RegEditGo
             {
                 tvItem = FindKey(tvItem, key);
                 if (tvItem == IntPtr.Zero)
-                {
                     return;
-                }
+
                 Interop.SendMessage(_wndTreeView, Interop.TVM_SELECTITEM, (IntPtr)TVGN_CARET, tvItem);
 
                 // expand tree node
@@ -145,16 +141,12 @@ namespace RegEditGo
             Interop.SendMessage(_wndTreeView, Interop.TVM_SELECTITEM, (IntPtr)TVGN_CARET, tvItem);
 
             if (select)
-            {
                 Interop.BringWindowToTop(_wndApp);
-            }
             else
-            {
                 SendTabKey(false);
-            }
         }
 
-        public void OpenValue(string value)
+        private void OpenValue(string value)
         {
             if (string.IsNullOrEmpty(value)) return;
 
@@ -162,7 +154,7 @@ namespace RegEditGo
 
             if (value.Length == 0)
             {
-                SetLVItemState(0);
+                SetLvItemState(0);
                 return;
             }
 
@@ -171,17 +163,15 @@ namespace RegEditGo
             {
                 var itemText = GetLvItemText(item);
                 if (itemText == null)
-                {
                     return;
-                }
+
                 if (string.Compare(itemText, value, StringComparison.OrdinalIgnoreCase) == 0)
-                {
                     break;
-                }
+
                 item++;
             }
 
-            SetLVItemState(item);
+            SetLvItemState(item);
 
             const int LVM_FIRST = 0x1000;
             const int LVM_ENSUREVISIBLE = LVM_FIRST + 19;
@@ -211,7 +201,7 @@ namespace RegEditGo
                 Interop.CloseHandle(_hProcess);
         }
 
-        public static int BufferSize { get; } = 512;
+        private static int BufferSize { get; } = 512;
 
         private readonly IntPtr _wndApp;
         private readonly IntPtr _wndTreeView;
@@ -239,7 +229,7 @@ namespace RegEditGo
             }
         }
 
-        private string GetTVItemTextEx(IntPtr wndTreeView, IntPtr item)
+        private string GetTvItemTextEx(IntPtr wndTreeView, IntPtr item)
         {
             const int TVIF_TEXT = 0x0001;
             const int MAX_TVITEMTEXT = 512;
@@ -280,12 +270,11 @@ namespace RegEditGo
 
             while (itemChild != IntPtr.Zero)
             {
-                var itemChildText = GetTVItemTextEx(_wndTreeView, itemChild);
+                var itemChildText = GetTvItemTextEx(_wndTreeView, itemChild);
 
                 if (string.Compare(itemChildText, key, StringComparison.OrdinalIgnoreCase) == 0)
-                {
                     return itemChild;
-                }
+
                 itemChild = Interop.SendMessage(_wndTreeView, Interop.TVM_GETNEXTITEM, (IntPtr)Interop.TVGN_NEXT,
                     itemChild);
             }
@@ -293,7 +282,7 @@ namespace RegEditGo
             return IntPtr.Zero;
         }
 
-        private void SetLVItemState(int item)
+        private void SetLvItemState(int item)
         {
             const int LVM_FIRST = 0x1000;
             const int LVM_SETITEMSTATE = LVM_FIRST + 43;
