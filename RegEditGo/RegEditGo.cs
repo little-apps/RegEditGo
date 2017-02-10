@@ -12,8 +12,6 @@ namespace RegEditGo
     {
         private RegEditGo()
         {
-            uint processId;
-
             // Checks if access is disabled to regedit, and adds access to it
             CheckAccess();
 
@@ -23,7 +21,7 @@ namespace RegEditGo
                 throw new NullReferenceException("Unable to get process");
 
             _wndApp = process.MainWindowHandle;
-            processId = (uint)process.Id;
+            var processId = (uint)process.Id;
 
             if (_wndApp == IntPtr.Zero)
             {
