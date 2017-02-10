@@ -10,6 +10,16 @@ namespace RegEditGo
 {
     public class RegEditGo : IDisposable
     {
+        private static int BufferSize { get; } = 512;
+
+        private readonly IntPtr _wndApp;
+        private readonly IntPtr _wndTreeView;
+        private readonly IntPtr _wndListView;
+
+        private readonly IntPtr _hProcess;
+        private IntPtr _lpRemoteBuffer;
+        private IntPtr _lpLocalBuffer;
+
         private RegEditGo()
         {
             // Checks if access is disabled to regedit, and adds access to it
@@ -61,24 +71,24 @@ namespace RegEditGo
                 ShowErrorMessage(new SystemException("Failed to allocate memory in remote process"));
         }
 
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            Dispose(true);
-        }
+        
 
         ~RegEditGo()
         {
             Dispose(false);
         }
 
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            Dispose(true);
+        }
+
         public void Close()
         {
             Dispose();
         }
-
-        #region public
-
+        
         /// <summary>
         ///     Opens RegEdit.exe and navigates to given registry path and value
         /// </summary>
@@ -169,10 +179,6 @@ namespace RegEditGo
             SendTabKey(true);
         }
 
-        #endregion public
-
-        #region private
-
         private void Dispose(bool disposing)
         {
             if (disposing)
@@ -187,15 +193,7 @@ namespace RegEditGo
                 Interop.CloseHandle(_hProcess);
         }
 
-        private static int BufferSize { get; } = 512;
-
-        private readonly IntPtr _wndApp;
-        private readonly IntPtr _wndTreeView;
-        private readonly IntPtr _wndListView;
-
-        private readonly IntPtr _hProcess;
-        private IntPtr _lpRemoteBuffer;
-        private IntPtr _lpLocalBuffer;
+        
 
         private void SendTabKey(bool shiftPressed)
         {
@@ -388,7 +386,5 @@ namespace RegEditGo
             throw ex;
 #endif
         }
-
-        #endregion private
     }
 }
