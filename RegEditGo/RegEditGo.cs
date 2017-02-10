@@ -331,7 +331,7 @@ namespace RegEditGo
             return Marshal.PtrToStringAnsi((IntPtr)localBufferPtr);
         }
 
-        private Process GetProcess()
+        private static Process GetProcess()
         {
             Process proc;
 
