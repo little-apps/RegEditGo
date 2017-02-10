@@ -186,11 +186,6 @@ namespace RegEditGo
             SendTabKey(true);
         }
 
-        private void SetFocus(IntPtr wnd)
-        {
-            Interop.SendMessage(wnd, Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
-        }
-
         private void Dispose(bool disposing)
         {
             if (disposing)
