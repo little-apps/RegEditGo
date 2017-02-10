@@ -7,7 +7,7 @@ namespace RegEditGo.Wnd
     {
         private RegEditGo RegEditGo { get; }
 
-        public ListViewWnd(RegEditGo regEditGo) : base(regEditGo.MainWnd, "SysListView32")
+        public ListViewWnd(RegEditGo regEditGo) : base(regEditGo.RegEdit.DangerousGetHandle(), "SysListView32")
         {
             RegEditGo = regEditGo;
         }
