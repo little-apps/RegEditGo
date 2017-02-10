@@ -19,9 +19,9 @@ namespace RegEditGo
         internal readonly IntPtr RemoteBuffer;
         internal readonly IntPtr LocalBuffer;
 
-        private readonly RegEditWnd RegEdit;
-        private readonly TreeViewWnd TreeView;
-        private readonly ListViewWnd ListView;
+        internal readonly RegEditWnd RegEdit;
+        internal readonly TreeViewWnd TreeView;
+        internal readonly ListViewWnd ListView;
 
         private RegEditGo()
         {
