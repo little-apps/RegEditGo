@@ -12,13 +12,14 @@ namespace RegEditGo
     public class RegEditGo : IDisposable
     {
         internal static int BufferSize { get; } = 512;
-
-        internal readonly IntPtr MainWnd;
+        
+        //internal readonly IntPtr MainWnd;
 
         internal readonly IntPtr ProcHandle;
         internal readonly IntPtr RemoteBuffer;
         internal readonly IntPtr LocalBuffer;
 
+        private readonly RegEditWnd RegEdit;
         private readonly TreeViewWnd TreeView;
         private readonly ListViewWnd ListView;
 
@@ -32,15 +33,18 @@ namespace RegEditGo
             if (process == null)
                 throw new NullReferenceException("Unable to get process");
 
-            MainWnd = process.MainWindowHandle;
-            var processId = (uint)process.Id;
-
-            if (MainWnd == IntPtr.Zero)
+            try
+            {
+                RegEdit = new RegEditWnd(process.MainWindowHandle);
+            }
+            catch (NullReferenceException)
             {
                 ShowErrorMessage(new SystemException("no app handle"));
             }
+            
+            var processId = (uint)process.Id;
 
-            Interop.SetForegroundWindow(MainWnd);
+            RegEdit.SetForegroundWindow();
 
             // allocate buffer in local process
             LocalBuffer = Marshal.AllocHGlobal(BufferSize);
@@ -140,7 +144,7 @@ namespace RegEditGo
             TreeView.SendMessage(Interop.TVM_SELECTITEM, (IntPtr)TVGN_CARET, tvItem);
 
             if (select)
-                Interop.BringWindowToTop(MainWnd);
+                RegEdit.BringWindowToTop();
             else
                 SendTabKey(false);
         }
@@ -176,7 +180,7 @@ namespace RegEditGo
             const int LVM_ENSUREVISIBLE = LVM_FIRST + 19;
             ListView.SendMessage(LVM_ENSUREVISIBLE, (IntPtr)item, IntPtr.Zero);
 
-            Interop.BringWindowToTop(MainWnd);
+            RegEdit.BringWindowToTop();
 
             SendTabKey(false);
             SendTabKey(true);
@@ -207,15 +211,15 @@ namespace RegEditGo
             const int VK_SHIFT = 0x10;
             if (!shiftPressed)
             {
-                Interop.PostMessage(MainWnd, Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
-                Interop.PostMessage(MainWnd, Interop.WM_KEYUP, VK_TAB, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
             }
             else
             {
-                Interop.PostMessage(MainWnd, Interop.WM_KEYDOWN, VK_SHIFT, 0x1f01);
-                Interop.PostMessage(MainWnd, Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
-                Interop.PostMessage(MainWnd, Interop.WM_KEYUP, VK_TAB, 0x1f01);
-                Interop.PostMessage(MainWnd, Interop.WM_KEYUP, VK_SHIFT, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_SHIFT, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
+                RegEdit.PostMessage(Interop.WM_KEYUP, VK_SHIFT, 0x1f01);
             }
         }
         
