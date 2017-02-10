@@ -1,37 +1,43 @@
 ﻿using System;
+using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 
 namespace RegEditGo.Wnd
 {
-    public abstract class BaseWnd
+    public abstract class BaseWnd : SafeHandleZeroOrMinusOneIsInvalid
     {
-        public IntPtr WndHandle { get; protected set; }
 
-        protected BaseWnd(IntPtr parentWnd, string className)
+        protected BaseWnd(IntPtr parentWnd, string className) : base(true)
         {
-            WndHandle = Interop.FindWindowEx(parentWnd, IntPtr.Zero, className, null);;
-
-            if (WndHandle == IntPtr.Zero)
+            SetHandle(Interop.FindWindowEx(parentWnd, IntPtr.Zero, className, null));
+            
+            if (handle == IntPtr.Zero)
                 throw new NullReferenceException("Unable to get hwnd");
         }
 
-        protected BaseWnd(IntPtr wndHandle)
+        protected BaseWnd(IntPtr wndHandle) : base(true)
         {
-            WndHandle = wndHandle;
+            SetHandle(wndHandle);
         }
 
         public IntPtr SendMessage(uint msg, IntPtr wParam, IntPtr lParam)
         {
-            return Interop.SendMessage(WndHandle, msg, wParam, lParam);
+            return Interop.SendMessage(handle, msg, wParam, lParam);
         }
 
         public int PostMessage(int msg, int wParam, int lParam)
         {
-            return Interop.PostMessage(WndHandle, msg, wParam, lParam);
+            return Interop.PostMessage(handle, msg, wParam, lParam);
         }
 
         public IntPtr SetFocus()
         {
             return SendMessage(Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+        }
+
+        protected override bool ReleaseHandle()
+        {
+            return Interop.CloseHandle(handle);
         }
     }
 }
