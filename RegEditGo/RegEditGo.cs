@@ -16,33 +16,21 @@ namespace RegEditGo
 
             // Checks if access is disabled to regedit, and adds access to it
             CheckAccess();
-            
-            var processes = Process.GetProcessesByName("RegEdit");
-            if (processes.Length == 0)
-            {
-                using (var process = new Process())
-                {
-                    process.StartInfo.FileName = "RegEdit.exe";
-                    process.Start();
 
-                    process.WaitForInputIdle();
+            var process = GetProcess();
 
-                    _wndApp = process.MainWindowHandle;
-                    processId = (uint)process.Id;
-                }
-            }
-            else
-            {
-                _wndApp = processes[0].MainWindowHandle;
-                processId = (uint)processes[0].Id;
+            if (process == null)
+                throw new NullReferenceException("Unable to get process");
 
-                Interop.SetForegroundWindow(_wndApp);
-            }
+            _wndApp = process.MainWindowHandle;
+            processId = (uint)process.Id;
 
             if (_wndApp == IntPtr.Zero)
             {
                 ShowErrorMessage(new SystemException("no app handle"));
             }
+
+            Interop.SetForegroundWindow(_wndApp);
 
             // get handle to treeview
             _wndTreeView = Interop.FindWindowEx(_wndApp, IntPtr.Zero, "SysTreeView32", null);
@@ -345,6 +333,32 @@ namespace RegEditGo
 
             var localBufferPtr = _lpLocalBuffer.ToInt64() + Marshal.SizeOf(typeof(Interop.TVITEM));
             return Marshal.PtrToStringAnsi((IntPtr)localBufferPtr);
+        }
+
+        private Process GetProcess()
+        {
+            Process proc;
+
+            var processes = Process.GetProcessesByName("RegEdit");
+            if (processes.Length == 0)
+            {
+                try
+                {
+                    proc = Process.Start("RegEdit.exe");
+
+                    proc?.WaitForInputIdle();
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                proc = processes[0];
+            }
+
+            return proc;
         }
 
         private static void CheckAccess()
