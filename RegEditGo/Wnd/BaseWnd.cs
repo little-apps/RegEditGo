@@ -23,5 +23,10 @@ namespace RegEditGo.Wnd
         {
             return Interop.SendMessage(WndHandle, msg, wParam, lParam);
         }
+
+        public int PostMessage(int msg, int wParam, int lParam)
+        {
+            return Interop.PostMessage(WndHandle, msg, wParam, lParam);
+        }
     }
 }
