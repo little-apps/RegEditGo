@@ -14,7 +14,6 @@ namespace RegEditGo
         internal static int BufferSize { get; } = 512;
 
         internal readonly IntPtr MainWnd;
-        internal readonly IntPtr ListViewWnd;
 
         internal readonly IntPtr ProcHandle;
         internal readonly IntPtr RemoteBuffer;
@@ -150,7 +149,7 @@ namespace RegEditGo
         {
             if (string.IsNullOrEmpty(value)) return;
 
-            Interop.SendMessage(ListViewWnd, Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+            ListView.SendMessage(Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
 
             if (value.Length == 0)
             {
@@ -175,7 +174,7 @@ namespace RegEditGo
 
             const int LVM_FIRST = 0x1000;
             const int LVM_ENSUREVISIBLE = LVM_FIRST + 19;
-            Interop.SendMessage(ListViewWnd, LVM_ENSUREVISIBLE, (IntPtr)item, IntPtr.Zero);
+            ListView.SendMessage(LVM_ENSUREVISIBLE, (IntPtr)item, IntPtr.Zero);
 
             Interop.BringWindowToTop(MainWnd);
 
