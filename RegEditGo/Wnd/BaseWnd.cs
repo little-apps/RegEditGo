@@ -37,7 +37,11 @@ namespace RegEditGo.Wnd
 
         protected override bool ReleaseHandle()
         {
-            return Interop.CloseHandle(handle);
+            handle = (IntPtr) (-1);
+
+            SetHandleAsInvalid();
+
+            return true;
         }
     }
 }
