@@ -53,10 +53,10 @@ namespace RegEditGo
         internal static extern bool CloseHandle(IntPtr hObject);
 
         [DllImport("user32.dll")]
-        internal static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+        internal static extern IntPtr SendMessage(SafeHandle hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
-        internal static extern int PostMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+        internal static extern int PostMessage(SafeHandle hWnd, int msg, int wParam, int lParam);
 
         [DllImport("user32.dll")]
         internal static extern bool BringWindowToTop(IntPtr hWnd);

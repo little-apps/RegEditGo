@@ -22,12 +22,12 @@ namespace RegEditGo.Wnd
 
         public IntPtr SendMessage(uint msg, IntPtr wParam, IntPtr lParam)
         {
-            return Interop.SendMessage(handle, msg, wParam, lParam);
+            return Interop.SendMessage(this, msg, wParam, lParam);
         }
 
         public int PostMessage(int msg, int wParam, int lParam)
         {
-            return Interop.PostMessage(handle, msg, wParam, lParam);
+            return Interop.PostMessage(this, msg, wParam, lParam);
         }
 
         public IntPtr SetFocus()
