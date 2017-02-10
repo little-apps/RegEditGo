@@ -12,10 +12,6 @@ namespace RegEditGo.Wnd
             RegEditGo = regEditGo;
         }
 
-        public ListViewWnd(IntPtr wndHandle) : base(wndHandle)
-        {
-        }
-
         public void SetLvItemState(int item)
         {
             const int LVM_FIRST = 0x1000;
