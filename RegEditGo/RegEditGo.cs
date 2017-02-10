@@ -123,7 +123,7 @@ namespace RegEditGo
 
             const int TVGN_CARET = 0x0009;
 
-            TreeView.SendMessage(Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+            TreeView.SetFocus();
                 
             var tvItem = TreeView.GetRootItem();
 
@@ -153,7 +153,7 @@ namespace RegEditGo
         {
             if (string.IsNullOrEmpty(value)) return;
 
-            ListView.SendMessage(Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+            ListView.SetFocus();
 
             if (value.Length == 0)
             {

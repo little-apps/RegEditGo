@@ -28,5 +28,10 @@ namespace RegEditGo.Wnd
         {
             return Interop.PostMessage(WndHandle, msg, wParam, lParam);
         }
+
+        public IntPtr SetFocus()
+        {
+            return SendMessage(Interop.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+        }
     }
 }
