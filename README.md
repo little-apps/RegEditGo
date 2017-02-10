@@ -1,5 +1,5 @@
 # RegEditGo
-Navigates to a Windows Registry key and (possibly) a value name in regedit.exe. Instead of just setting ``LastKey`` in ``HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit``, this utilizes Windows Message to navigate like an actual user would. This project is a fork of [JumpTo RegEdit](https://www.codeproject.com/articles/20283/jumpto-regedit) created by Reto Ravasio in August 2007.
+Navigates to a Windows Registry key and (possibly) a value name in regedit.exe. Instead of just setting ``LastKey`` in ``HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit``, this utilizes Windows Messages to navigate like an actual user would. This project is a fork of [JumpTo RegEdit](https://www.codeproject.com/articles/20283/jumpto-regedit) created by Reto Ravasio in August 2007.
 
 ## License ##
 This project is licensed under the [GNU Lesser General Public License v3](http://www.gnu.org/copyleft/lesser.html).
