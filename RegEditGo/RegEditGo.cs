@@ -146,7 +146,7 @@ namespace RegEditGo
             if (select)
                 RegEdit.BringWindowToTop();
             else
-                SendTabKey(false);
+                RegEdit.SendTabKey(false);
         }
 
         private void OpenValue(string value)
@@ -182,8 +182,8 @@ namespace RegEditGo
 
             RegEdit.BringWindowToTop();
 
-            SendTabKey(false);
-            SendTabKey(true);
+            RegEdit.SendTabKey(false);
+            RegEdit.SendTabKey(true);
         }
 
         private void Dispose(bool disposing)
@@ -198,24 +198,6 @@ namespace RegEditGo
                 Interop.VirtualFreeEx(ProcHandle, RemoteBuffer, 0, Interop.MEM_RELEASE);
             if (ProcHandle != IntPtr.Zero)
                 Interop.CloseHandle(ProcHandle);
-        }
-        
-        private void SendTabKey(bool shiftPressed)
-        {
-            const int VK_TAB = 0x09;
-            const int VK_SHIFT = 0x10;
-            if (!shiftPressed)
-            {
-                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
-                RegEdit.PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
-            }
-            else
-            {
-                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_SHIFT, 0x1f01);
-                RegEdit.PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
-                RegEdit.PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
-                RegEdit.PostMessage(Interop.WM_KEYUP, VK_SHIFT, 0x1f01);
-            }
         }
         
         private static Process GetProcess()

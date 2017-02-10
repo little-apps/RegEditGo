@@ -21,5 +21,23 @@ namespace RegEditGo.Wnd
         {
             return Interop.BringWindowToTop(WndHandle);
         }
+
+        public void SendTabKey(bool shiftPressed)
+        {
+            const int VK_TAB = 0x09;
+            const int VK_SHIFT = 0x10;
+            if (!shiftPressed)
+            {
+                PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
+                PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
+            }
+            else
+            {
+                PostMessage(Interop.WM_KEYDOWN, VK_SHIFT, 0x1f01);
+                PostMessage(Interop.WM_KEYDOWN, VK_TAB, 0x1f01);
+                PostMessage(Interop.WM_KEYUP, VK_TAB, 0x1f01);
+                PostMessage(Interop.WM_KEYUP, VK_SHIFT, 0x1f01);
+            }
+        }
     }
 }
