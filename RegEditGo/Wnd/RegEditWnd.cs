@@ -14,12 +14,12 @@ namespace RegEditGo.Wnd
 
         public bool SetForegroundWindow()
         {
-            return Interop.SetForegroundWindow(handle);
+            return Interop.SetForegroundWindow(this);
         }
 
         public bool BringWindowToTop()
         {
-            return Interop.BringWindowToTop(handle);
+            return Interop.BringWindowToTop(this);
         }
 
         public void SendTabKey(bool shiftPressed)

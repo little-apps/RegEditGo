@@ -59,11 +59,11 @@ namespace RegEditGo
         internal static extern int PostMessage(SafeHandle hWnd, int msg, int wParam, int lParam);
 
         [DllImport("user32.dll")]
-        internal static extern bool BringWindowToTop(IntPtr hWnd);
+        internal static extern bool BringWindowToTop(SafeHandle hWnd);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool SetForegroundWindow(IntPtr hWnd);
+        internal static extern bool SetForegroundWindow(SafeHandle hWnd);
 
         #region structs
 
