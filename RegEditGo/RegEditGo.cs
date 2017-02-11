@@ -157,6 +157,9 @@ namespace RegEditGo
             var item = 0;
             while (true)
             {
+                if (item == int.MaxValue)
+                    return;
+
                 var itemText = ListView.GetLvItemText(item);
                 if (itemText == null)
                     return;
