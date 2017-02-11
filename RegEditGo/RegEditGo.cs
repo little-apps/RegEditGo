@@ -24,7 +24,7 @@ namespace RegEditGo
         private readonly string _keyPath;
         private readonly string _valueName;
 
-        private RegEditGo(string keyPath, string valueName)
+        public RegEditGo(string keyPath, string valueName)
         {
             if (string.IsNullOrWhiteSpace(keyPath))
                 throw new ArgumentException("Key path cannot be null, empty or whitespace", nameof(keyPath));
