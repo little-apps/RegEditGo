@@ -26,6 +26,9 @@ namespace RegEditGo
 
         private RegEditGo(string keyPath, string valueName)
         {
+            if (string.IsNullOrWhiteSpace(keyPath))
+                throw new ArgumentException("Key path cannot be null, empty or whitespace", nameof(keyPath));
+
             _keyPath = keyPath;
             _valueName = valueName;
 
@@ -122,8 +125,6 @@ namespace RegEditGo
 
         private void OpenKey()
         {
-            if (string.IsNullOrEmpty(_keyPath)) return;
-
             const int TVGN_CARET = 0x0009;
 
             TreeView.SetFocus();
