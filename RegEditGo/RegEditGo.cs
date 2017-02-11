@@ -155,7 +155,7 @@ namespace RegEditGo
             }
 
             var item = 0;
-            for (;;)
+            while (true)
             {
                 var itemText = ListView.GetLvItemText(item);
                 if (itemText == null)
