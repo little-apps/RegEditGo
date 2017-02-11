@@ -102,25 +102,19 @@ namespace RegEditGo
         {
             Dispose();
         }
-        
+
         /// <summary>
-        ///     Opens RegEdit.exe and navigates to given registry path and value
+        /// Navigates to given registry path and value
         /// </summary>
-        /// <param name="keyPath">path of registry key</param>
-        /// <param name="valueName">name of registry value (can be null)</param>
-        public static void GoTo(string keyPath, string valueName)
+        public void GoTo()
         {
-            using (var locator = new RegEditGo(keyPath, valueName))
-            {
-                var hasValue = !string.IsNullOrEmpty(valueName);
-                locator.OpenKey();
+            OpenKey();
 
-                if (!hasValue)
-                    return;
+            if (string.IsNullOrEmpty(_valueName))
+                return;
 
-                Thread.Sleep(200);
-                locator.OpenValue();
-            }
+            Thread.Sleep(200);
+            OpenValue();
         }
 
         private void OpenKey()
