@@ -12,8 +12,6 @@ namespace RegEditGo
     public class RegEditGo : IDisposable
     {
         internal static int BufferSize { get; } = 512;
-        
-        //internal readonly IntPtr MainWnd;
 
         internal readonly IntPtr ProcHandle;
         internal readonly IntPtr RemoteBuffer;
