@@ -188,6 +188,10 @@ namespace RegEditGo
         {
             if (disposing)
             {
+                // Free managed resources
+                RegEdit.SetHandleAsInvalid();
+                TreeView.SetHandleAsInvalid();
+                ListView.SetHandleAsInvalid();
             }
 
             if (LocalBuffer != IntPtr.Zero)
