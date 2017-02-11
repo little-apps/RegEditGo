@@ -52,7 +52,6 @@ namespace RegEditGo
             ProcHandle = Interop.OpenProcess(Interop.PROCESS_ALL_ACCESS, false, processId);
             if (ProcHandle == IntPtr.Zero)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
-            //ShowErrorMessage(new ApplicationException("Failed to access process"));
 
             // Allocate a buffer in the remote process
             RemoteBuffer = Interop.VirtualAllocEx(ProcHandle, IntPtr.Zero, BufferSize, Interop.MEM_COMMIT,
