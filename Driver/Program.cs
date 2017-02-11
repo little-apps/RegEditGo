@@ -12,7 +12,10 @@ namespace Driver
             if (!Privileges.SetPrivilege("SeDebugPrivilege", true))
                 throw new Exception("Unable to enable privilege");
 
-            RegEditGo.RegEditGo.GoTo(RegKey, ValueName);
+            using (var regEditGo = new RegEditGo.RegEditGo(RegKey, ValueName))
+            {
+                regEditGo.GoTo();
+            }
 
             Privileges.SetPrivilege("SeDebugPrivilege", false);
 
