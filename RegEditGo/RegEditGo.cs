@@ -110,9 +110,6 @@ namespace RegEditGo
         {
             OpenKey();
 
-            if (string.IsNullOrEmpty(_valueName))
-                return;
-
             Thread.Sleep(200);
             OpenValue();
         }
@@ -151,7 +148,7 @@ namespace RegEditGo
         {
             ListView.SetFocus();
 
-            if (_valueName.Length == 0)
+            if (string.IsNullOrEmpty(_valueName))
             {
                 ListView.SetLvItemState(0);
                 return;
