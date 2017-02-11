@@ -39,7 +39,7 @@ namespace RegEditGo
             }
             catch (NullReferenceException)
             {
-                ShowErrorMessage(new SystemException("no app handle"));
+                throw new SystemException("no app handle");
             }
             
             var processId = (uint)process.Id;
@@ -49,7 +49,7 @@ namespace RegEditGo
             // allocate buffer in local process
             LocalBuffer = Marshal.AllocHGlobal(BufferSize);
             if (LocalBuffer == IntPtr.Zero)
-                ShowErrorMessage(new SystemException("Failed to allocate memory in local process"));
+                throw new SystemException("Failed to allocate memory in local process");
 
             ProcHandle = Interop.OpenProcess(Interop.PROCESS_ALL_ACCESS, false, processId);
             if (ProcHandle == IntPtr.Zero)
@@ -60,7 +60,7 @@ namespace RegEditGo
             RemoteBuffer = Interop.VirtualAllocEx(ProcHandle, IntPtr.Zero, BufferSize, Interop.MEM_COMMIT,
                 Interop.PAGE_READWRITE);
             if (RemoteBuffer == IntPtr.Zero)
-                ShowErrorMessage(new SystemException("Failed to allocate memory in remote process"));
+                throw new SystemException("Failed to allocate memory in remote process");
 
             try
             {
@@ -68,7 +68,7 @@ namespace RegEditGo
             }
             catch (NullReferenceException)
             {
-                ShowErrorMessage(new SystemException("Unable to locate treeview"));
+                throw new SystemException("Unable to locate treeview");
             }
 
             try
@@ -77,7 +77,7 @@ namespace RegEditGo
             }
             catch (NullReferenceException)
             {
-                ShowErrorMessage(new SystemException("Unable to locate listview"));
+                throw new SystemException("Unable to locate listview");
             }
         }
         
@@ -247,13 +247,6 @@ namespace RegEditGo
                 // So, lets enable access
                 regKey.SetValue("DisableRegistryTools", 0, RegistryValueKind.DWord);
             }
-        }
-
-        private static void ShowErrorMessage(Exception ex)
-        {
-#if (DEBUG)
-            throw ex;
-#endif
         }
     }
 }
