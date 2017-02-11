@@ -149,8 +149,6 @@ namespace RegEditGo
 
         private void OpenValue()
         {
-            if (string.IsNullOrEmpty(_valueName)) return;
-
             ListView.SetFocus();
 
             if (_valueName.Length == 0)
