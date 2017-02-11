@@ -21,8 +21,14 @@ namespace RegEditGo
         internal readonly TreeViewWnd TreeView;
         internal readonly ListViewWnd ListView;
 
-        private RegEditGo()
+        private readonly string _keyPath;
+        private readonly string _valueName;
+
+        private RegEditGo(string keyPath, string valueName)
         {
+            _keyPath = keyPath;
+            _valueName = valueName;
+
             // Checks if access is disabled to regedit, and adds access to it
             CheckAccess();
 
@@ -101,22 +107,22 @@ namespace RegEditGo
         /// <param name="valueName">name of registry value (can be null)</param>
         public static void GoTo(string keyPath, string valueName)
         {
-            using (var locator = new RegEditGo())
+            using (var locator = new RegEditGo(keyPath, valueName))
             {
                 var hasValue = !string.IsNullOrEmpty(valueName);
-                locator.OpenKey(keyPath, hasValue);
+                locator.OpenKey();
 
                 if (!hasValue)
                     return;
 
                 Thread.Sleep(200);
-                locator.OpenValue(valueName);
+                locator.OpenValue();
             }
         }
 
-        private void OpenKey(string path, bool select)
+        private void OpenKey()
         {
-            if (string.IsNullOrEmpty(path)) return;
+            if (string.IsNullOrEmpty(_keyPath)) return;
 
             const int TVGN_CARET = 0x0009;
 
@@ -124,7 +130,7 @@ namespace RegEditGo
                 
             var tvItem = TreeView.GetRootItem();
 
-            foreach (var key in path.Split('\\').Where(key => key.Length != 0))
+            foreach (var key in _keyPath.Split('\\').Where(key => key.Length != 0))
             {
                 tvItem = TreeView.FindKey(tvItem, key);
                 if (tvItem == IntPtr.Zero)
@@ -140,19 +146,19 @@ namespace RegEditGo
 
             TreeView.SendMessage(Interop.TVM_SELECTITEM, (IntPtr)TVGN_CARET, tvItem);
 
-            if (select)
+            if (!string.IsNullOrEmpty(_valueName))
                 RegEdit.BringWindowToTop();
             else
                 RegEdit.SendTabKey(false);
         }
 
-        private void OpenValue(string value)
+        private void OpenValue()
         {
-            if (string.IsNullOrEmpty(value)) return;
+            if (string.IsNullOrEmpty(_valueName)) return;
 
             ListView.SetFocus();
 
-            if (value.Length == 0)
+            if (_valueName.Length == 0)
             {
                 ListView.SetLvItemState(0);
                 return;
@@ -165,7 +171,7 @@ namespace RegEditGo
                 if (itemText == null)
                     return;
 
-                if (string.Compare(itemText, value, StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare(itemText, _valueName, StringComparison.OrdinalIgnoreCase) == 0)
                     break;
 
                 item++;
