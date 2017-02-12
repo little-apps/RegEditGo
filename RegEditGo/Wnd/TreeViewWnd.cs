@@ -34,7 +34,9 @@ namespace RegEditGo.Wnd
             if (!success)
                 throw new SystemException("Failed to write to process memory");
 
-            SendMessage(Interop.TVM_GETITEMW, IntPtr.Zero, RegEditGo.RemoteBuffer);
+            if (SendMessage(Interop.TVM_GETITEMW, IntPtr.Zero, RegEditGo.RemoteBuffer) == IntPtr.Zero)
+                // This can occur if the remote process is using an architecture thats incompatible with this process
+                return null;
 
             // copy tvItem back into local buffer (copy whole buffer because we don't yet know how big the string is)
             success = Interop.ReadProcessMemory(RegEditGo.ProcHandle, RegEditGo.RemoteBuffer, RegEditGo.LocalBuffer,
