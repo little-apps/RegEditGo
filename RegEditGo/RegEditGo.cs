@@ -98,11 +98,6 @@ namespace RegEditGo
             Dispose(true);
         }
 
-        public void Close()
-        {
-            Dispose();
-        }
-
         /// <summary>
         /// Navigates to given registry path and value
         /// </summary>
