@@ -7,11 +7,21 @@ namespace RegEditGo.Wnd
     {
         private RegEditGo RegEditGo { get; }
         
+        /// <summary>
+        /// Constructor for TreeViewWnd
+        /// </summary>
+        /// <param name="regEditGo">RegEditGo instance with handle to main window</param>
         public TreeViewWnd(RegEditGo regEditGo) : base(regEditGo.RegEdit.DangerousGetHandle(), "SysTreeView32")
         {
             RegEditGo = regEditGo;
         }
 
+        /// <summary>
+        /// Gets text of treeview node at index
+        /// </summary>
+        /// <param name="item">Item index</param>
+        /// <returns>Text or null if SendMessage failed</returns>
+        /// <exception cref="SystemException">Thrown if unable to read/write from remote buffer</exception>
         public string GetTvItemTextEx(IntPtr item)
         {
             const int TVIF_TEXT = 0x0001;
@@ -49,11 +59,22 @@ namespace RegEditGo.Wnd
             return Marshal.PtrToStringUni((IntPtr)nLocalBufferPtr);
         }
 
+        /// <summary>
+        /// Gets root node in treeview
+        /// </summary>
+        /// <returns>Pointer to root node</returns>
         public IntPtr GetRootItem()
         {
             return SendMessage(Interop.TVM_GETNEXTITEM, (IntPtr) Interop.TVGN_ROOT, IntPtr.Zero);
         }
 
+        /// <summary>
+        /// Recurses through treeview to find node with text
+        /// </summary>
+        /// <param name="itemParent">Parent node to start search at</param>
+        /// <param name="key">Text to look for</param>
+        /// <returns>Pointer to treeview node</returns>
+        /// <exception cref="SystemException">Thrown if unable to find node with text</exception>
         public IntPtr FindKey(IntPtr itemParent, string key)
         {
             var itemChild = SendMessage(Interop.TVM_GETNEXTITEM, (IntPtr) Interop.TVGN_CHILD, itemParent);

@@ -7,11 +7,20 @@ namespace RegEditGo.Wnd
     {
         private RegEditGo RegEditGo { get; }
 
+        /// <summary>
+        /// Constructor for ListViewWnd
+        /// </summary>
+        /// <param name="regEditGo">RegEditGo instance with handle to main window</param>
         public ListViewWnd(RegEditGo regEditGo) : base(regEditGo.RegEdit.DangerousGetHandle(), "SysListView32")
         {
             RegEditGo = regEditGo;
         }
 
+        /// <summary>
+        /// Focuses and selects item in listview
+        /// </summary>
+        /// <param name="item">Item index</param>
+        /// <exception cref="SystemException">Thrown if there was an error communicating with regedit.exe</exception>
         public void SetLvItemState(int item)
         {
             const int LVM_FIRST = 0x1000;
@@ -41,6 +50,12 @@ namespace RegEditGo.Wnd
                 throw new SystemException("LVM_GETITEM Failed ");
         }
 
+        /// <summary>
+        /// Gets text in first column at specifed index in listview
+        /// </summary>
+        /// <param name="item">Index in listview</param>
+        /// <returns>Text or null if SendMessage failed</returns>
+        /// <exception cref="SystemException">Thrown if unable to read/write from remote buffer</exception>
         public string GetLvItemText(int item)
         {
             const int LVM_GETITEM = 0x1005;

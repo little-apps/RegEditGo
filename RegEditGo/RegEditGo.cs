@@ -11,19 +11,47 @@ namespace RegEditGo
 {
     public class RegEditGo : IDisposable
     {
+        /// <summary>
+        /// Buffer size for local and remote buffers
+        /// </summary>
         internal static int BufferSize { get; } = 512;
 
+        /// <summary>
+        /// Handle created with OpenProcess on regedit
+        /// </summary>
         internal IntPtr ProcHandle { get; private set; }
+        /// <summary>
+        /// Pointer to remote buffer in regedit
+        /// </summary>
         internal IntPtr RemoteBuffer { get; private set; }
+        /// <summary>
+        /// Pointer to local buffer in this process
+        /// </summary>
         internal IntPtr LocalBuffer { get; private set; }
 
+        /// <summary>
+        /// Instance for manipulating regedit window
+        /// </summary>
         internal RegEditWnd RegEdit { get; private set; }
+        /// <summary>
+        /// Instance for manipulating treeview inside regedit window
+        /// </summary>
         internal TreeViewWnd TreeView { get; private set; }
+        /// <summary>
+        /// Instance for manipulating listview inside regedit window
+        /// </summary>
         internal ListViewWnd ListView { get; private set; }
 
         private readonly string _keyPath;
         private readonly string _valueName;
 
+        /// <summary>
+        /// Constructor for RegEditGo
+        /// </summary>
+        /// <param name="keyPath">Key to open</param>
+        /// <param name="valueName">Value name to select (or empty if none)</param>
+        /// <exception cref="ArgumentException">Thrown if keyPath is null, empty, or whitespace</exception>
+        /// <exception cref="NullReferenceException">Thrown if unable to get <see cref="Process"/> for regedit.exe</exception>
         public RegEditGo(string keyPath, string valueName)
         {
             if (string.IsNullOrWhiteSpace(keyPath))
@@ -68,6 +96,9 @@ namespace RegEditGo
             OpenValue();
         }
 
+        /// <summary>
+        /// Sends messages to regedit.exe to go to key in tree view
+        /// </summary>
         private void OpenKey()
         {
             const int TVGN_CARET = 0x0009;
@@ -98,6 +129,11 @@ namespace RegEditGo
                 RegEdit.SendTabKey(false);
         }
 
+        /// <summary>
+        /// Attempts to get root item. If unable to, tries to restart regedit.exe
+        /// </summary>
+        /// <returns>Pointer to root node information</returns>
+        /// <exception cref="SystemException">Thrown if unable to access regedit.exe</exception>
         private IntPtr TryGetRootItem()
         {
             var tvItem = TreeView.GetRootItem();
@@ -138,6 +174,9 @@ namespace RegEditGo
             return tvItem;
         }
 
+        /// <summary>
+        /// Sends messages to regedit.exe to go to value name in listview
+        /// </summary>
         private void OpenValue()
         {
             ListView.SetFocus();
@@ -176,6 +215,10 @@ namespace RegEditGo
             RegEdit.SendTabKey(true);
         }
 
+        /// <summary>
+        /// Releases handles and frees buffers
+        /// </summary>
+        /// <param name="disposing">If true, free managed resources</param>
         private void Dispose(bool disposing)
         {
             if (disposing)
@@ -189,6 +232,10 @@ namespace RegEditGo
             FreeBuffers();
         }
         
+        /// <summary>
+        /// Gets regedit process that's already running (or starts it if not)
+        /// </summary>
+        /// <returns><see cref="Process"/> instance for regedit.exe or null if unable to start it</returns>
         private static Process GetProcess()
         {
             Process proc;
@@ -215,6 +262,11 @@ namespace RegEditGo
             return proc;
         }
 
+        /// <summary>
+        /// Gets <see cref="BaseWnd"/> instances for main regedit window, treeview, and listview
+        /// </summary>
+        /// <param name="mainWindowHandle">Main window handle</param>
+        /// <exception cref="SystemException">Thrown if unable to get main window, treeview, or listview handle</exception>
         private void GetWndInstances(IntPtr mainWindowHandle)
         {
             try
@@ -245,6 +297,12 @@ namespace RegEditGo
             }
         }
 
+        /// <summary>
+        /// Allocates local buffer for this program (using Marshal.AllocHGlobals) and remote buffer for regedit.exe
+        /// </summary>
+        /// <param name="procId">Regedit.exe process ID</param>
+        /// <exception cref="SystemException">Throw if unable to allocate local or remote buffer</exception>
+        /// <exception cref="Win32Exception">Thrown if unable to open handle for regedit.exe</exception>
         private void AllocateBuffers(uint procId)
         {
             LocalBuffer = Marshal.AllocHGlobal(BufferSize);
@@ -262,6 +320,9 @@ namespace RegEditGo
                 throw new SystemException("Failed to allocate memory in remote process");
         }
 
+        /// <summary>
+        /// Frees local and remote buffers as well as process handle
+        /// </summary>
         private void FreeBuffers()
         {
             if (LocalBuffer != IntPtr.Zero)
@@ -282,6 +343,9 @@ namespace RegEditGo
             ProcHandle = IntPtr.Zero;
         }
 
+        /// <summary>
+        /// Checks if regedit.exe access is disabled. If so, re-enables it.
+        /// </summary>
         private static void CheckAccess()
         {
             using (
