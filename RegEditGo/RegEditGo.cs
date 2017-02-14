@@ -13,13 +13,13 @@ namespace RegEditGo
     {
         internal static int BufferSize { get; } = 512;
 
-        internal readonly IntPtr ProcHandle;
-        internal readonly IntPtr RemoteBuffer;
-        internal readonly IntPtr LocalBuffer;
+        internal IntPtr ProcHandle { get; private set; }
+        internal IntPtr RemoteBuffer { get; private set; }
+        internal IntPtr LocalBuffer { get; private set; }
 
-        internal readonly RegEditWnd RegEdit;
-        internal readonly TreeViewWnd TreeView;
-        internal readonly ListViewWnd ListView;
+        internal RegEditWnd RegEdit { get; private set; }
+        internal TreeViewWnd TreeView { get; private set; }
+        internal ListViewWnd ListView { get; private set; }
 
         private readonly string _keyPath;
         private readonly string _valueName;
@@ -39,54 +39,13 @@ namespace RegEditGo
 
             if (process == null)
                 throw new NullReferenceException("Unable to get process");
-
-            try
-            {
-                RegEdit = new RegEditWnd(process.MainWindowHandle);
-            }
-            catch (NullReferenceException)
-            {
-                throw new SystemException("no app handle");
-            }
             
-            var processId = (uint)process.Id;
+            AllocateBuffers((uint)process.Id);
+            GetWndInstances(process.MainWindowHandle);
 
             RegEdit.SetForegroundWindow();
-
-            // allocate buffer in local process
-            LocalBuffer = Marshal.AllocHGlobal(BufferSize);
-            if (LocalBuffer == IntPtr.Zero)
-                throw new SystemException("Failed to allocate memory in local process");
-
-            ProcHandle = Interop.OpenProcess(Interop.PROCESS_ALL_ACCESS, false, processId);
-            if (ProcHandle == IntPtr.Zero)
-                throw new Win32Exception(Marshal.GetLastWin32Error());
-
-            // Allocate a buffer in the remote process
-            RemoteBuffer = Interop.VirtualAllocEx(ProcHandle, IntPtr.Zero, BufferSize, Interop.MEM_COMMIT,
-                Interop.PAGE_READWRITE);
-            if (RemoteBuffer == IntPtr.Zero)
-                throw new SystemException("Failed to allocate memory in remote process");
-
-            try
-            {
-                TreeView = new TreeViewWnd(this);
-            }
-            catch (NullReferenceException)
-            {
-                throw new SystemException("Unable to locate treeview");
-            }
-
-            try
-            {
-                ListView = new ListViewWnd(this);
-            }
-            catch (NullReferenceException)
-            {
-                throw new SystemException("Unable to locate listview");
-            }
         }
-        
+
         ~RegEditGo()
         {
             Dispose(false);
@@ -114,8 +73,8 @@ namespace RegEditGo
             const int TVGN_CARET = 0x0009;
 
             TreeView.SetFocus();
-                
-            var tvItem = TreeView.GetRootItem();
+
+            var tvItem = TryGetRootItem();
 
             foreach (var key in _keyPath.Split('\\').Where(key => key.Length != 0))
             {
@@ -137,6 +96,46 @@ namespace RegEditGo
                 RegEdit.BringWindowToTop();
             else
                 RegEdit.SendTabKey(false);
+        }
+
+        private IntPtr TryGetRootItem()
+        {
+            var tvItem = TreeView.GetRootItem();
+
+            var rootItemText = TreeView.GetTvItemTextEx(tvItem);
+
+            if (!string.IsNullOrEmpty(rootItemText))
+                return tvItem;
+
+            // Process may be running in incompatible architecture
+            FreeBuffers();
+
+            // Close process
+            foreach (var proc in Process.GetProcessesByName("regedit"))
+            {
+                proc.Kill();
+                proc.WaitForExit();
+            }
+
+            // Spawn process
+            var newProc = GetProcess();
+
+            // Allocate local + remote buffer
+            AllocateBuffers((uint)newProc.Id);
+
+            // Get new instances of TreeViewWnd and ListViewWnd
+            GetWndInstances(newProc.MainWindowHandle);
+
+            tvItem = TreeView.GetRootItem();
+
+            // Test root item text
+            rootItemText = TreeView.GetTvItemTextEx(tvItem);
+
+            // If still fails -> throw exception
+            if (string.IsNullOrEmpty(rootItemText))
+                throw new SystemException("Unable to access regedit.exe");
+
+            return tvItem;
         }
 
         private void OpenValue()
@@ -187,12 +186,7 @@ namespace RegEditGo
                 ListView.SetHandleAsInvalid();
             }
 
-            if (LocalBuffer != IntPtr.Zero)
-                Marshal.FreeHGlobal(LocalBuffer);
-            if (RemoteBuffer != IntPtr.Zero)
-                Interop.VirtualFreeEx(ProcHandle, RemoteBuffer, 0, Interop.MEM_RELEASE);
-            if (ProcHandle != IntPtr.Zero)
-                Interop.CloseHandle(ProcHandle);
+            FreeBuffers();
         }
         
         private static Process GetProcess()
@@ -219,6 +213,73 @@ namespace RegEditGo
             }
 
             return proc;
+        }
+
+        private void GetWndInstances(IntPtr mainWindowHandle)
+        {
+            try
+            {
+                RegEdit = new RegEditWnd(mainWindowHandle);
+            }
+            catch (NullReferenceException)
+            {
+                throw new SystemException("no app handle");
+            }
+
+            try
+            {
+                TreeView = new TreeViewWnd(this);
+            }
+            catch (NullReferenceException)
+            {
+                throw new SystemException("Unable to locate treeview");
+            }
+
+            try
+            {
+                ListView = new ListViewWnd(this);
+            }
+            catch (NullReferenceException)
+            {
+                throw new SystemException("Unable to locate listview");
+            }
+        }
+
+        private void AllocateBuffers(uint procId)
+        {
+            LocalBuffer = Marshal.AllocHGlobal(BufferSize);
+            if (LocalBuffer == IntPtr.Zero)
+                throw new SystemException("Failed to allocate memory in local process");
+
+            ProcHandle = Interop.OpenProcess(Interop.PROCESS_ALL_ACCESS, false, procId);
+            if (ProcHandle == IntPtr.Zero)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+
+            // Allocate a buffer in the remote process
+            RemoteBuffer = Interop.VirtualAllocEx(ProcHandle, IntPtr.Zero, BufferSize, Interop.MEM_COMMIT,
+                Interop.PAGE_READWRITE);
+            if (RemoteBuffer == IntPtr.Zero)
+                throw new SystemException("Failed to allocate memory in remote process");
+        }
+
+        private void FreeBuffers()
+        {
+            if (LocalBuffer != IntPtr.Zero)
+                Marshal.FreeHGlobal(LocalBuffer);
+
+            LocalBuffer = IntPtr.Zero;
+
+            // Clear remote buffer
+            if (RemoteBuffer != IntPtr.Zero)
+                Interop.VirtualFreeEx(ProcHandle, RemoteBuffer, BufferSize, Interop.MEM_RELEASE);
+
+            RemoteBuffer = IntPtr.Zero;
+
+            // Close process handle
+            if (ProcHandle != IntPtr.Zero)
+                Interop.CloseHandle(ProcHandle);
+
+            ProcHandle = IntPtr.Zero;
         }
 
         private static void CheckAccess()
