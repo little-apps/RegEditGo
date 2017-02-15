@@ -54,7 +54,7 @@ namespace RegEditGo
         /// Constructor for RegEditGo
         /// </summary>
         /// <param name="keyPath">Key to open</param>
-        /// <param name="valueName">Value name to select (or empty if none)</param>
+        /// <param name="valueName">Value name to select. Use <see cref="DefaultValueName"/> to select default value name. If null/empty, no value name is selected.</param>
         /// <exception cref="ArgumentException">Thrown if keyPath is null, empty, or whitespace</exception>
         /// <exception cref="NullReferenceException">Thrown if unable to get <see cref="Process"/> for regedit.exe</exception>
         public RegEditGo(string keyPath, string valueName)
