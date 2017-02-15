@@ -12,6 +12,11 @@ namespace RegEditGo
     public class RegEditGo : IDisposable
     {
         /// <summary>
+        /// Use to get select the default value name for registry key
+        /// </summary>
+        public const string DefaultValueName = "(Default)";
+
+        /// <summary>
         /// Buffer size for local and remote buffers
         /// </summary>
         internal static int BufferSize { get; } = 512;
