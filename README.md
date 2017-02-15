@@ -7,6 +7,7 @@ This project is licensed under the [GNU Lesser General Public License v3](http:/
 ## Notes ##
  * Along with "regedit.exe", this program also requires administrator privileges in order to run.
  * RegEditGo attempts to get all possible access rights to the "regedit.exe" process object (using ``PROCESS_ALL_ACCESS``) . Although not required, it is recommend the "SeDebugPrivilege" (``SE_DEBUG_NAME``) is added to your program before RegEditGo is used.
+ * When RegEditGo is unable to send messages to regedit.exe, it is usually because it is running in an incompatible architecture (the default in Visual C# projects is to prefer 32 bit). If this occurs, regedit.exe will be closed and then started again from RegEditGo. If it fails again, a ``SystemException`` is thrown.
 
 ## Example ##
 
