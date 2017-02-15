@@ -5,7 +5,7 @@ namespace Driver
     static class Program
     {   
         private const string RegKey = "HKEY_LOCAL_MACHINE\\Software\\Microsoft";
-        private const string ValueName = "";
+        private const string ValueName = RegEditGo.RegEditGo.DefaultValueName;
 
         static void Main(string[] args)
         {
