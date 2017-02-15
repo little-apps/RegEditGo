@@ -54,9 +54,10 @@ namespace RegEditGo.Wnd
         /// Gets text in first column at specifed index in listview
         /// </summary>
         /// <param name="item">Index in listview</param>
+        /// <param name="column">Column index to get text from</param>
         /// <returns>Text or null if SendMessage failed</returns>
         /// <exception cref="SystemException">Thrown if unable to read/write from remote buffer</exception>
-        public string GetLvItemText(int item)
+        public string GetLvItemText(int item, int column = 0)
         {
             const int LVM_GETITEM = 0x1005;
             const int LVIF_TEXT = 0x0001;
@@ -68,7 +69,7 @@ namespace RegEditGo.Wnd
             {
                 mask = LVIF_TEXT,
                 iItem = item,
-                iSubItem = 0,
+                iSubItem = column,
                 pszText = (IntPtr)nRemoteBufferPtr,
                 cchTextMax = 50
             };
